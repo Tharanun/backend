@@ -1,0 +1,100 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int           @id @default(autoincrement())
+  username    String        @unique @db.VarChar(30)
+  password    String        @db.VarChar(72)
+  tel         String        @db.VarChar(10)
+  email       String?
+  sell        Sell?
+  userAddress userAddress[]
+}
+
+model userAddress {
+  id           Int     @id @default(autoincrement())
+  house_number String
+  house_name   String
+  moo          String
+  soi          String?
+  street       String?
+  sub_district String
+  district     String
+  province     String
+  zipcode      String
+  userId       Int
+  user         User    @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+}
+
+model Admin {
+  id       Int     @id @default(autoincrement())
+  username String  @unique @db.VarChar(30)
+  password String  @db.VarChar(72)
+  tel      String  @db.VarChar(10)
+  email    String?
+  sell     Sell?
+}
+
+model Sell {
+  id        Int      @id @default(autoincrement())
+  amount    Int      @default(1) @db.Int
+  sellDate  DateTime @default(now()) @map("sell_Date") @db.Timestamp(0)
+  userId    Int      @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  adminId   Int      @unique
+  admin     Admin?   @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  productId Int      @unique
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Product {
+  id            Int         @id @default(autoincrement())
+  productName   String      @db.VarChar(128)
+  productImg    String
+  amountProduct Int         @db.Int
+  price         Int         @db.Int
+  cost          Int         @db.Int
+  details       String      @db.VarChar(255)
+  sell          Sell[]
+  quotation     Quotation[]
+}
+
+model Quotation {
+  id        Int      @id @default(autoincrement())
+  date      DateTime @default(now()) @map("quotation_date") @db.Timestamp(0)
+  amount    Decimal
+  status    String
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+}
+
+model productOwner {
+  id           Int            @id @default(autoincrement())
+  ownerName    String
+  tel          String
+  ownerAddress ownerAddress[]
+}
+
+model ownerAddress {
+  id             Int          @id @default(autoincrement())
+  house_number   String
+  house_name     String
+  moo            String
+  soi            String?
+  street         String?
+  sub_district   String
+  district       String
+  province       String
+  zipcode        String
+  productOwnerId Int
+  prodoctowner   productOwner @relation(fields: [productOwnerId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+}
