@@ -3,13 +3,14 @@ const userService = require("../services/user-service")
 
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { user } = require("../models/prisma");
 
 // Register
 exports.registerAdmin = async (req, res, next) =>{
     const {username, password, tel, email} = req.body;
     try{
         if(!username || !password || !tel || !email){
-            return createError(400, "บักฮู้ขี้ใส่บ่ครบ")
+            return createError(400, "ข้อมูลไม่ครบครับ")
         }
         if(
             typeof username !== "string" ||
@@ -17,12 +18,12 @@ exports.registerAdmin = async (req, res, next) =>{
             typeof tel !== "string" ||
             typeof email !== "string"
         ){
-            return createError(400, "บักฮู้ขี้ใส่บ่ถืก")
+            return createError(400, "ใส่ชนิดข้อมูลไม่ถูกครับ")
         }
 
         const isUserExist = await userService.getUserByUsername(username,"Admin");
         if (isUserExist){
-            return createError (400, "บักฮู้ขี้มันซ้ำ")
+            return createError (400, "username ซ้ำครับ")
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -93,10 +94,10 @@ exports.loginAdmin = async (req, res, next) => {
         );
 
         if (!isPasswordMath) {
-            return createError(400, "Email or Password is invalid.");
+            return createError(400, "Username or Password is invalid.");
         }
-        const token = jwt.sign({id: isUserExist.id }, process.env.JWT_SECRET, {expiresIn: process.env.JWT_EXPIRES_IN})
-
+        const payload = {id: isUserExist.id}
+        const token = jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: process.env.JWT_EXPIRES_IN})
         res.json({token})
     } catch (err) {
         next(err);
@@ -131,4 +132,8 @@ exports.loginUser = async(req, res, next) =>{
     } catch (err) {
         next(err)
     }
+}
+
+exports.getme = (req, res,next) =>{
+    res.json(req.admin)
 }
