@@ -5,14 +5,13 @@ const express = require("express")
 const app = express()
 const auth_route = require("./routes/auth-route")
 const authenticate = require('./middlewares/authenticate')
+const productRoute = require('./routes/product-route')
 
 app.use(cors())
 app.use(express.json())
 
 app.use('/auth', auth_route)
-// app.use('/adminonly',authenticate, (req, res, next) => {
-//     res.json({admin: req.admin})
-// })
+app.use('/product', productRoute)
 
 
 

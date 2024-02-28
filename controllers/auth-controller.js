@@ -123,7 +123,7 @@ exports.loginUser = async(req, res, next) =>{
             isUserExist.password
         )
         if (!isPasswordMath){
-            return createError(400,"Email or Password is invalid.")
+            return createError(400,"Username or Password is invalid.")
         }
 
         const token =jwt.sign({id: isUserExist.id}, process.env.JWT_SECRET, {expiresIn: process.env.JWT_EXPIRES_IN})
